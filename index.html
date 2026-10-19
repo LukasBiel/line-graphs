@@ -88,41 +88,42 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--s1);outline-off
 .topbar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .back{background:var(--panel);border:1.5px solid var(--edge);border-radius:10px;padding:7px 11px;font-size:.9rem;white-space:nowrap}
 .lvname{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.1}
-.lvname .num{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.lvname .num{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--f-mono);font-size:.72rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
 .lvname .nm{font-family:var(--f-display);font-weight:700;font-size:1.35rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .timer{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.85rem;text-align:right;line-height:1.15}
 .timer small{display:block;color:var(--muted);font-size:.7rem}
 .timer.over b{color:var(--muted)}
 
-.playgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
-.boardwrap{position:relative;width:100%;height:min(94vw,52vh);min-height:250px;border:1.5px solid var(--edge);border-radius:14px;overflow:hidden;background:var(--paper);touch-action:manipulation}
+.playgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.lines-2 .boardwrap{--bh:38vh}
+.lines-3 .boardwrap{--bh:34vh}
+.boardwrap{position:relative;width:100%;height:min(80vw,var(--bh,42vh));min-height:200px;border:1.5px solid var(--edge);border-radius:14px;overflow:hidden;background:var(--paper);touch-action:manipulation}
 canvas{display:block;width:100%;height:100%}
 .coordbtn{position:absolute;right:8px;bottom:8px;background:var(--panel);border:1.5px solid var(--edge);border-radius:999px;padding:4px 10px;font-family:var(--f-mono);font-size:.75rem}
 .coordbtn[aria-pressed="true"]{border-color:var(--star);background:var(--key-hi)}
 .tap{position:absolute;pointer-events:none;transform:translate(-50%,calc(-100% - 14px));background:var(--ink);color:var(--paper);font-family:var(--f-mono);font-size:.8rem;padding:3px 8px;border-radius:6px;white-space:nowrap}
 
-.panel{display:flex;flex-direction:column;gap:10px;min-width:0}
-.task{margin:0;font-size:.95rem;border-left:3px solid var(--margin);padding-left:10px}
+.panel{display:flex;flex-direction:column;gap:7px;min-width:0}
 .goals{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font-family:var(--f-mono);font-size:.75rem;padding:3px 9px;border-radius:999px;border:1.5px solid var(--edge);background:var(--panel);display:inline-flex;align-items:center;gap:5px}
 .chip.good{border-color:var(--ok);color:var(--ok)}
 .chip.bad{border-color:var(--mine);color:var(--mine)}
 .fields{display:flex;flex-direction:column;gap:6px}
-.field{background:var(--panel);border:1.5px solid var(--edge);border-radius:12px;padding:6px 8px 5px;transition:border-color .12s}
+.field{background:var(--panel);border:1.5px solid var(--edge);border-radius:12px;padding:3px 8px 3px;transition:border-color .12s}
 .field.active{border-color:var(--c)}
 .frow{display:flex;align-items:center;gap:8px}
 .dot{flex:none;width:22px;height:22px;border-radius:50%;background:var(--c);color:var(--paper);font-family:var(--f-mono);font-weight:700;font-size:.75rem;display:grid;place-items:center}
 .frow label{font-family:var(--f-mono);font-weight:700;color:var(--c);white-space:nowrap}
-.frow input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font-family:var(--f-mono);font-size:1.15rem;font-weight:500;padding:6px 2px;outline:none}
+.frow input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font-family:var(--f-mono);font-size:1.1rem;font-weight:500;padding:3px 2px;outline:none}
 .frow input::placeholder{color:var(--muted);opacity:.55}
-.fmeta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-family:var(--f-mono);font-size:.72rem;color:var(--muted);padding-left:2px}
+.fmeta{flex:none;max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--f-mono);font-size:.72rem;color:var(--muted);text-align:right}
+.fmeta .mc{margin-right:6px}
+@media (max-width:520px){.fmeta .mc{display:none}}
 .fmeta .err{color:var(--mine)}
 .fmeta .done{color:var(--ok)}
 .actions{display:flex;gap:8px;align-items:center}
-.hintbtn{background:var(--panel);border:1.5px solid var(--edge);border-radius:10px;padding:6px 12px;font-size:.88rem}
-.hintbox{margin:0;font-size:.9rem;background:var(--key-hi);border-radius:10px;padding:8px 10px}
 .keypad{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;user-select:none;-webkit-user-select:none}
-.key{height:46px;border-radius:10px;border:1.5px solid var(--key-edge);border-bottom-width:3px;background:var(--key);font-family:var(--f-mono);font-size:1.15rem;font-weight:500;touch-action:manipulation}
+.key{height:44px;border-radius:10px;border:1.5px solid var(--key-edge);border-bottom-width:3px;background:var(--key);font-family:var(--f-mono);font-size:1.15rem;font-weight:500;touch-action:manipulation}
 .key:active{transform:translateY(1px);border-bottom-width:2px}
 .key.x{color:var(--s1);font-weight:700;font-size:1.3rem}
 .key.fn{font-size:.95rem;color:var(--muted)}
@@ -176,11 +177,8 @@ canvas{display:block;width:100%;height:100%}
         <button class="coordbtn" id="coordBtn" type="button" aria-pressed="false">(x, y)</button>
       </div>
       <div class="panel">
-        <p class="task" id="task"></p>
         <div class="goals" id="goals"></div>
         <div class="fields" id="fields"></div>
-        <div class="actions"><button class="hintbtn" id="hintBtn" type="button">Hint</button></div>
-        <p class="hintbox" id="hintBox" hidden></p>
         <div class="keypad" id="keypad"></div>
       </div>
     </div>
@@ -215,7 +213,7 @@ const CH=[
   {name:'Three lines',sub:'mines close the easy way',limit:240},
 ];
 const S=(a,b)=>({a,b});
-/* segs = reference solution (used only for hints). lines = how many equations the player gets. */
+/* segs = reference solution (used to verify levels). lines = how many equations the player gets. */
 const L=[
  {ch:0,name:'First line',tip:'Type x and watch what happens. Every star has to sit on the line.',stars:[[-3,-3],[1,1],[4,4]],segs:[S(1,0)]},
  {ch:0,name:'Twice as fast',tip:'When x goes up by 1, y goes up by 2. The number in front of x is the gradient m.',stars:[[-2,-4],[1,2],[3,6]],segs:[S(2,0)]},
@@ -305,7 +303,7 @@ let prog={levels:{},unlockAll:false};
 try{const r=localStorage.getItem(KEY);if(r)prog=Object.assign(prog,JSON.parse(r))}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(prog))}catch(e){}};
 
-const st={li:0,parsed:[],res:null,active:0,hintStep:0,hintsUsed:0,t0:0,tEnd:0,won:false,coords:false,pops:{},parts:[],tap:null,winTimer:null};
+const st={li:0,parsed:[],res:null,active:0,minesTouched:false,t0:0,tEnd:0,won:false,coords:false,pops:{},parts:[],tap:null,winTimer:null};
 const $=id=>document.getElementById(id);
 const cv=$('cv'),ctx=cv.getContext('2d');
 let coarse=false;try{coarse=matchMedia('(pointer:coarse)').matches||('ontouchstart' in window)}catch(e){}
@@ -348,18 +346,16 @@ function showMenu(){clearTimeout(st.winTimer);$('win').hidden=true;$('play').hid
 function startLevel(i){
   clearTimeout(st.winTimer);
   const lv=L[i],n=nLines(lv);
-  Object.assign(st,{li:i,active:0,hintStep:0,hintsUsed:0,t0:performance.now(),tEnd:0,won:false,pops:{},parts:[],tap:null,res:null});
+  Object.assign(st,{li:i,active:0,minesTouched:false,t0:performance.now(),tEnd:0,won:false,pops:{},parts:[],tap:null,res:null});
   $('menu').hidden=true;$('win').hidden=true;$('play').hidden=false;
-  $('lvNum').textContent=`Level ${i+1} / ${L.length} · ${CH[lv.ch].name}`;
+  $('play').className='lines-'+n;
+  $('lvNum').textContent=`Level ${i+1}/${L.length} · ${CH[lv.ch].name}`;
   $('lvName').textContent=lv.name;
-  $('task').textContent=lv.tip;
-  $('hintBox').hidden=true;
   const multi=n>1,sub=['₁','₂','₃','₄'];
   $('fields').innerHTML=Array.from({length:n},(_,k)=>`
     <div class="field" data-k="${k}" style="--c:var(${SEGC[k]})">
       <div class="frow">${multi?`<span class="dot">${k+1}</span>`:''}<label for="eq${k}">y${multi?sub[k]:''} =</label>
-        <input id="eq${k}" data-k="${k}" autocomplete="off" autocapitalize="off" spellcheck="false" ${coarse?'inputmode="none"':''} placeholder="${k===0&&i===0?'x':'e.g. 2x + 1'}"></div>
-      <div class="fmeta"><span class="ab" id="ab${k}">&nbsp;</span><span id="cnt${k}"></span></div>
+        <input id="eq${k}" data-k="${k}" autocomplete="off" autocapitalize="off" spellcheck="false" ${coarse?'inputmode="none"':''} placeholder="${k===0&&i===0?'x':'e.g. 2x + 1'}"><span class="fmeta"><span class="ab mc" id="ab${k}"></span><span id="cnt${k}"></span></span></div>
     </div>`).join('');
   buildKeypad(multi);
   setActive(0,!coarse);
@@ -418,16 +414,17 @@ function recompute(){
   minesHit.forEach((h,i)=>{if(h&&!prevM[i])st.pops['m'+i]=performance.now()});
   const filled=P.filter(p=>p.ok).length,anyErr=P.some(p=>p.err);
   const complete=!anyErr&&filled>0&&starsHit.every(Boolean)&&!minesHit.some(Boolean);
+  if(minesHit.some(Boolean))st.minesTouched=true;
   st.res={starsHit,minesHit,starsBy,minesBy,complete};
 
   P.forEach((p,k)=>{
     const el=$('ab'+k),cnt=$('cnt'+k);
     const nS=starsBy.filter(r=>r[k]).length,nM=minesBy.filter(r=>r[k]).length;
-    if(p.empty){el.innerHTML='&nbsp;';cnt.innerHTML=''}
-    else if(p.err){el.innerHTML=`<span class="err">${p.err}</span>`;cnt.innerHTML=''}
+    if(p.empty){el.innerHTML='';cnt.innerHTML=''}
+    else if(p.err){el.innerHTML='';cnt.innerHTML=`<span class="err">${p.err}</span>`}
     else{
       el.innerHTML=`m = ${nice(p.a)} · c = ${nice(p.b)}`;
-      cnt.innerHTML=nM?`<span class="err">✕ hits a mine</span>`:`<span class="${nS?'done':''}">★ ${nS}</span>`;
+      cnt.innerHTML=nM?`<span class="err">✕ mine</span>`:`<span class="${nS?'done':''}">★ ${nS}</span>`;
     }
   });
   const hit=starsHit.filter(Boolean).length,all=hit===lv.stars.length;
@@ -441,28 +438,6 @@ function recompute(){
   requestDraw();
 }
 
-/* ---------- hints ---------- */
-$('hintBtn').onclick=()=>{
-  const lv=L[st.li],r=st.res,multi=nLines(lv)>1;
-  // pick the reference line that still has stars nobody has collected
-  let k=lv.segs.findIndex(sg=>lv.stars.some((s,i)=>!r.starsHit[i]&&Math.abs(sg.a*s[0]+sg.b-s[1])<.08));
-  if(k<0)k=0;
-  const sg=lv.segs[k];
-  if(st.hintK!==k){st.hintK=k;st.hintStep=0}
-  st.hintStep=Math.min(2,st.hintStep+1);st.hintsUsed++;
-  let t;
-  if(multi){
-    const on=lv.stars.filter(s=>Math.abs(sg.a*s[0]+sg.b-s[1])<.08);
-    t=st.hintStep===1?`One line that works goes through ${on.slice(0,2).map(s=>pt(...s)).join(' and ')}.`
-      :`That line is ${eqStr(sg.a,sg.b)}.`;
-  }else if(st.hintStep===1){
-    t=Math.abs(sg.a)<1e-9?'m = 0, so the line is flat.'
-      :`m = ${nice(sg.a)}: when x goes up by 1, y goes ${sg.a>0?'up':'down'} by ${nice(Math.abs(sg.a))}.`;
-  }else{
-    t=`c = ${nice(sg.b)}: the line crosses the y-axis at ${pt(0,sg.b)}. Together: ${eqStr(sg.a,sg.b)}`;
-  }
-  $('hintBox').textContent=t;$('hintBox').hidden=false;
-};
 
 /* ---------- timer ---------- */
 function tick(){
@@ -478,14 +453,14 @@ function tick(){
 function win(){
   st.won=true;st.tEnd=performance.now();tick();
   const lv=L[st.li],t=(st.tEnd-st.t0)/1000,lim=CH[lv.ch].limit;
-  const m=[true,st.hintsUsed===0,t<=lim];
+  const m=[true,!st.minesTouched,t<=lim];
   const old=medalsOf(st.li);
   prog.levels[st.li]={done:true,m:m.map((v,i)=>v||old[i])};save();
   lv.stars.forEach(([x,y])=>{const px=view.X(x),py=view.Y(y);
     for(let j=0;j<7;j++){const a=Math.random()*Math.PI*2,v=1.5+Math.random()*3;st.parts.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2,life:1,r:3+Math.random()*3})}});
   requestDraw();
   $('winEqs').innerHTML=st.parsed.map((p,k)=>p.ok?`<span style="color:var(${SEGC[k]})">${eqStr(p.a,p.b)}</span>`:'').join('');
-  const labels=['Every star collected',st.hintsUsed?`No hints (you used ${st.hintsUsed})`:'No hints',`Under ${mmss(lim)} (your time: ${mmss(t)})`];
+  const labels=['Every star collected',lv.mines?(st.minesTouched?'Never touched a mine (you hit one)':'Never touched a mine'):'Clean run',`Under ${mmss(lim)} (your time: ${mmss(t)})`];
   $('winMedals').innerHTML=m.map((v,i)=>`<li class="${v?'':'no'}">${starSvg(v,20)} ${labels[i]}</li>`).join('');
   const last=st.li===L.length-1;
   $('winTitle').textContent=last?'All levels done!':['Cleared!','Nice one!','Spot on!'][st.li%3];
