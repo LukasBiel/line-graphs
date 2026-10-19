@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Through the Stars</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&family=Kalam:wght@400;700&display=swap">
+<style>
+html{color-scheme:light}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+/* Layout: zeszyt w kratkę (jasny) / zielona tablica (ciemny); plansza z wykresem + panel z równaniami i klawiaturą */
+:root{
+  --paper:#f6f8f4; --panel:#ffffff; --edge:#cdd8e6;
+  --grid:#d3e0ef; --grid-strong:#a7bdd8; --grid-faint:rgba(120,150,190,.13);
+  --axis:#22304d; --ink:#1b2740; --muted:#5b6a80;
+  --margin:#df5a4e; --band:rgba(36,86,201,.05);
+  --star:#e09a00; --star-glow:rgba(224,154,0,.45);
+  --mine:#d23f35; --ok:#1d8a4b;
+  --s1:#2456c9; --s2:#8a3fd1; --s3:#0e8a76; --s4:#cc5f12;
+  --key:#ffffff; --key-edge:#c3d0e1; --key-hi:#e8effa;
+  --f-display:"Kalam","Comic Sans MS","Segoe Print",cursive;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#1c2f28; --panel:#22382f; --edge:#36564a;
+  --grid:rgba(255,255,255,.07); --grid-strong:rgba(255,255,255,.2); --grid-faint:rgba(255,255,255,.035);
+  --axis:#e8efe9; --ink:#eef4ef; --muted:#a6bcb2;
+  --margin:#ff8a7e; --band:rgba(255,255,255,.04);
+  --star:#ffd257; --star-glow:rgba(255,210,87,.5);
+  --mine:#ff6a5e; --ok:#6fdc9a;
+  --s1:#86bcff; --s2:#d6a6ff; --s3:#6fe0c8; --s4:#ffad66;
+  --key:#29433a; --key-edge:#3f5f52; --key-hi:#33503f;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#1c2f28; --panel:#22382f; --edge:#36564a;
+  --grid:rgba(255,255,255,.07); --grid-strong:rgba(255,255,255,.2); --grid-faint:rgba(255,255,255,.035);
+  --axis:#e8efe9; --ink:#eef4ef; --muted:#a6bcb2;
+  --margin:#ff8a7e; --band:rgba(255,255,255,.04);
+  --star:#ffd257; --star-glow:rgba(255,210,87,.5);
+  --mine:#ff6a5e; --ok:#6fdc9a;
+  --s1:#86bcff; --s2:#d6a6ff; --s3:#6fe0c8; --s4:#ffad66;
+  --key:#29433a; --key-edge:#3f5f52; --key-hi:#33503f;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid-faint) 1px,transparent 1px),linear-gradient(90deg,var(--grid-faint) 1px,transparent 1px);
+  background-size:22px 22px;
+  color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:12px 24px;
+  -webkit-tap-highlight-color:transparent;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--s1);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto}
+
+/* ---------- menu ---------- */
+.hero{padding-block:18px 8px;border-left:3px solid var(--margin);padding-left:16px;margin-bottom:18px}
+.hero h1{font-family:var(--f-display);font-weight:700;font-size:clamp(2.4rem,9vw,3.6rem);line-height:1;margin:0 0 8px;text-wrap:balance}
+.hero h1 span{color:var(--star)}
+.hero p{margin:0;max-width:52ch;color:var(--muted)}
+.total{margin-top:12px;font-family:var(--f-mono);font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:6px}
+.chapter{margin-bottom:22px}
+.chapter h2{font-family:var(--f-display);font-size:1.5rem;margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.chapter h2 small{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);font-weight:500}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px;margin-top:10px}
+.tile{background:var(--panel);border:1.5px solid var(--edge);border-radius:12px;padding:10px 12px;text-align:left;display:grid;gap:2px;min-height:96px;transition:transform .12s,border-color .12s}
+.tile:hover:not(:disabled){transform:translateY(-2px);border-color:var(--s1)}
+.tile .n{font-family:var(--f-display);font-weight:700;font-size:1.6rem;line-height:1}
+.tile .nm{font-size:.85rem;color:var(--muted)}
+.tile .ms{display:flex;gap:3px;margin-top:auto}
+.tile.next{border-color:var(--star);box-shadow:0 0 0 3px var(--star-glow)}
+.tile:disabled{opacity:.42;cursor:not-allowed}
+.foot{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.link{background:none;border:1px dashed var(--edge);border-radius:999px;padding:6px 12px;font-size:.85rem;color:var(--muted)}
+
+/* ---------- play ---------- */
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.back{background:var(--panel);border:1.5px solid var(--edge);border-radius:10px;padding:7px 11px;font-size:.9rem;white-space:nowrap}
+.lvname{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.1}
+.lvname .num{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.lvname .nm{font-family:var(--f-display);font-weight:700;font-size:1.35rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.timer{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.85rem;text-align:right;line-height:1.15}
+.timer small{display:block;color:var(--muted);font-size:.7rem}
+.timer.over b{color:var(--muted)}
+
+.playgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.boardwrap{position:relative;width:100%;height:min(94vw,52vh);min-height:250px;border:1.5px solid var(--edge);border-radius:14px;overflow:hidden;background:var(--paper);touch-action:manipulation}
+canvas{display:block;width:100%;height:100%}
+.coordbtn{position:absolute;right:8px;bottom:8px;background:var(--panel);border:1.5px solid var(--edge);border-radius:999px;padding:4px 10px;font-family:var(--f-mono);font-size:.75rem}
+.coordbtn[aria-pressed="true"]{border-color:var(--star);background:var(--key-hi)}
+.tap{position:absolute;pointer-events:none;transform:translate(-50%,calc(-100% - 14px));background:var(--ink);color:var(--paper);font-family:var(--f-mono);font-size:.8rem;padding:3px 8px;border-radius:6px;white-space:nowrap}
+
+.panel{display:flex;flex-direction:column;gap:10px;min-width:0}
+.task{margin:0;font-size:.95rem;border-left:3px solid var(--margin);padding-left:10px}
+.goals{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--f-mono);font-size:.75rem;padding:3px 9px;border-radius:999px;border:1.5px solid var(--edge);background:var(--panel);display:inline-flex;align-items:center;gap:5px}
+.chip.good{border-color:var(--ok);color:var(--ok)}
+.chip.bad{border-color:var(--mine);color:var(--mine)}
+.fields{display:flex;flex-direction:column;gap:6px}
+.field{background:var(--panel);border:1.5px solid var(--edge);border-radius:12px;padding:6px 8px 5px;transition:border-color .12s}
+.field.active{border-color:var(--c)}
+.frow{display:flex;align-items:center;gap:8px}
+.dot{flex:none;width:22px;height:22px;border-radius:50%;background:var(--c);color:var(--paper);font-family:var(--f-mono);font-weight:700;font-size:.75rem;display:grid;place-items:center}
+.frow label{font-family:var(--f-mono);font-weight:700;color:var(--c);white-space:nowrap}
+.frow input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font-family:var(--f-mono);font-size:1.15rem;font-weight:500;padding:6px 2px;outline:none}
+.frow input::placeholder{color:var(--muted);opacity:.55}
+.fmeta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-family:var(--f-mono);font-size:.72rem;color:var(--muted);padding-left:2px}
+.fmeta .err{color:var(--mine)}
+.fmeta .done{color:var(--ok)}
+.actions{display:flex;gap:8px;align-items:center}
+.hintbtn{background:var(--panel);border:1.5px solid var(--edge);border-radius:10px;padding:6px 12px;font-size:.88rem}
+.hintbox{margin:0;font-size:.9rem;background:var(--key-hi);border-radius:10px;padding:8px 10px}
+.keypad{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;user-select:none;-webkit-user-select:none}
+.key{height:46px;border-radius:10px;border:1.5px solid var(--key-edge);border-bottom-width:3px;background:var(--key);font-family:var(--f-mono);font-size:1.15rem;font-weight:500;touch-action:manipulation}
+.key:active{transform:translateY(1px);border-bottom-width:2px}
+.key.x{color:var(--s1);font-weight:700;font-size:1.3rem}
+.key.fn{font-size:.95rem;color:var(--muted)}
+.key:disabled{opacity:.35}
+
+@media (min-width:860px){
+  .playgrid{grid-template-columns:minmax(0,1fr) 360px;align-items:start}
+  .boardwrap{height:min(78vh,680px)}
+}
+
+/* ---------- win ---------- */
+.win{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(10,20,30,.45);padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.card{background:var(--panel);border:1.5px solid var(--edge);border-radius:16px;padding:20px;width:min(420px,100%);display:grid;gap:12px;animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.85);opacity:0}}
+.card h3{font-family:var(--f-display);font-size:2rem;margin:0;line-height:1}
+.eqs{display:grid;gap:2px;font-family:var(--f-mono);font-size:.95rem}
+.medals{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.medals li{display:flex;align-items:center;gap:8px;font-size:.92rem}
+.medals li.no{color:var(--muted)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btn{flex:1;min-width:110px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--edge);background:var(--panel);font-weight:700}
+.btn.primary{background:var(--s1);border-color:var(--s1);color:var(--paper)}
+@media (prefers-reduced-motion:reduce){.card{animation:none}.tile{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <main id="menu">
+    <header class="hero">
+      <h1>Through the <span>Stars</span></h1>
+      <p>Type the equation of a line so it passes through every star and misses every mine. Start with y = x, finish by juggling three lines at once.</p>
+      <div class="total" id="total"></div>
+    </header>
+    <div id="chapters"></div>
+    <div class="foot">
+      <button class="link" id="unlockAll" type="button">Unlock all levels</button>
+      <button class="link" id="resetBtn" type="button">Reset progress</button>
+    </div>
+  </main>
+
+  <section id="play" hidden>
+    <div class="topbar">
+      <button class="back" id="backBtn" type="button">← Levels</button>
+      <div class="lvname"><span class="num" id="lvNum"></span><span class="nm" id="lvName"></span></div>
+      <div class="timer" id="timer"></div>
+    </div>
+    <div class="playgrid">
+      <div class="boardwrap" id="board">
+        <canvas id="cv"></canvas>
+        <div class="tap" id="tap" hidden></div>
+        <button class="coordbtn" id="coordBtn" type="button" aria-pressed="false">(x, y)</button>
+      </div>
+      <div class="panel">
+        <p class="task" id="task"></p>
+        <div class="goals" id="goals"></div>
+        <div class="fields" id="fields"></div>
+        <div class="actions"><button class="hintbtn" id="hintBtn" type="button">Hint</button></div>
+        <p class="hintbox" id="hintBox" hidden></p>
+        <div class="keypad" id="keypad"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="win" id="win" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+    <h3 id="winTitle">Cleared!</h3>
+    <div class="eqs" id="winEqs"></div>
+    <ul class="medals" id="winMedals"></ul>
+    <div class="btns">
+      <button class="btn" id="againBtn" type="button">Play again</button>
+      <button class="btn" id="menuBtn" type="button">Levels</button>
+      <button class="btn primary" id="nextBtn" type="button">Next →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+/* ================= DATA ================= */
+const CH=[
+  {name:'Through the origin',sub:'y = mx',limit:45},
+  {name:'Shift it',sub:'y = mx + c',limit:60},
+  {name:'Work it out',sub:'two points → equation',limit:90},
+  {name:'Two lines',sub:'one line is not enough',limit:150},
+  {name:'Three lines',sub:'mines close the easy way',limit:240},
+];
+const S=(a,b)=>({a,b});
+/* segs = reference solution (used only for hints). lines = how many equations the player gets. */
+const L=[
+ {ch:0,name:'First line',tip:'Type x and watch what happens. Every star has to sit on the line.',stars:[[-3,-3],[1,1],[4,4]],segs:[S(1,0)]},
+ {ch:0,name:'Twice as fast',tip:'When x goes up by 1, y goes up by 2. The number in front of x is the gradient m.',stars:[[-2,-4],[1,2],[3,6]],segs:[S(2,0)]},
+ {ch:0,name:'Downhill',tip:'The line falls from left to right? Then the gradient is negative.',stars:[[-4,4],[-1,1],[3,-3]],segs:[S(-1,0)]},
+ {ch:0,name:'Gentle slope',tip:'The gradient can be a fraction. Try 1/2x or 0.5x.',stars:[[-4,-2],[2,1],[6,3]],segs:[S(.5,0)]},
+ {ch:0,name:'Steep drop',tip:'One step right, three squares down.',stars:[[-2,6],[1,-3],[2,-6]],segs:[S(-3,0)]},
+
+ {ch:1,name:'Lift',tip:'Add a number at the end: y = x + c. The c moves the line up or down.',stars:[[-4,-2],[0,2],[3,5]],segs:[S(1,2)]},
+ {ch:1,name:'Flat',tip:'y never changes here. A number on its own is enough.',stars:[[-5,3],[0,3],[4,3]],segs:[S(0,3)]},
+ {ch:1,name:'Start at −1',tip:'A star on the y-axis gives away c. Then count the gradient.',stars:[[-1,-3],[0,-1],[3,5]],segs:[S(2,-1)]},
+ {ch:1,name:'Slide',tip:'The line falls and crosses the y-axis high up.',stars:[[-2,6],[0,4],[5,-1]],segs:[S(-1,4)]},
+ {ch:1,name:'Every three squares',tip:'x goes up by 3, y goes up by 1. How much is that per square?',stars:[[-6,-1],[-3,0],[0,1],[6,3]],segs:[S(1/3,1)]},
+ {ch:1,name:'Minefield',tip:'Avoid the mines ✕. Your line must not touch them.',stars:[[-3,4],[0,2],[6,-2]],mines:[[3,1],[2,2],[-6,5]],segs:[S(-2/3,2)]},
+ {ch:1,name:'Ski jump',tip:'Two squares right, three squares down.',stars:[[-4,4],[-2,1],[0,-2],[2,-5]],mines:[[-3,3],[1,-3]],segs:[S(-1.5,-2)]},
+
+ {ch:2,name:'Hidden c',tip:'No star is on the y-axis. Find the gradient first, then walk back to x = 0.',stars:[[-2,3],[2,5],[6,7]],segs:[S(.5,4)]},
+ {ch:2,name:'Two points',tip:'Only two stars. Gradient = change in y ÷ change in x.',stars:[[-3,-5],[1,3]],mines:[[0,2],[-1,-2],[2,4]],segs:[S(2,1)]},
+ {ch:2,name:'Far apart',tip:'Count how much y drops between the stars.',stars:[[1,4],[3,0],[5,-4]],mines:[[0,5],[4,-1]],segs:[S(-2,6)]},
+ {ch:2,name:'Fraction drop',tip:'Mines guard the y-axis on both sides. c has to be exact.',stars:[[-5,1],[5,-3]],mines:[[0,0],[0,-2]],segs:[S(-.4,-1)]},
+
+ {ch:3,lines:2,name:'Crossroads',tip:'One line can’t reach all six stars. You get two equations: every star needs at least one line.',stars:[[-4,-4],[0,0],[4,4],[-3,5],[1,1],[5,-3]],segs:[S(1,0),S(-1,2)]},
+ {ch:3,lines:2,name:'Rails',tip:'Two groups of three. Look at how the stars line up.',stars:[[-4,-5],[-2,-1],[0,3],[0,-3],[2,1],[4,5]],segs:[S(2,3),S(2,-3)]},
+ {ch:3,lines:2,name:'Roadblock',tip:'The obvious flat lines run straight into mines. Pair the stars another way.',stars:[[-4,2],[4,2],[-2,-4],[2,-4]],mines:[[0,2],[0,-4]],segs:[S(-1,-2),S(1,-2)]},
+ {ch:3,lines:2,name:'Detour',tip:'The x-axis is mined. Two stars sit on the y-axis. How do you pair them up?',stars:[[-5,0],[5,0],[0,3],[0,-3]],mines:[[0,0],[3,0],[-3,0]],segs:[S(.6,3),S(.6,-3)]},
+ {ch:3,lines:2,name:'Hidden four',tip:'Four of these stars are in a line. Find them, and the last two take care of themselves.',stars:[[-4,-1],[0,1],[2,2],[6,4],[-1,5],[3,-3]],segs:[S(.5,1),S(-2,3)]},
+
+ {ch:4,lines:3,name:'Triangle',tip:'Three lines, nine stars. Each line has three of them.',stars:[[-6,-5],[-1,0],[2,3],[-2,3],[1,0],[6,-5],[-5,-2],[0,-2],[5,-2]],segs:[S(1,1),S(-1,1),S(0,-2)]},
+ {ch:4,lines:3,name:'Dice',tip:'Three flat lines would be easy. The mines say no. Go diagonal.',stars:[[-4,4],[4,4],[-4,0],[4,0],[-4,-4],[4,-4]],mines:[[0,4],[-2,0],[0,-4]],segs:[S(-.5,2),S(1,0),S(-.5,-2)]},
+ {ch:4,lines:3,name:'Constellation',tip:'Seven stars, three lines, and mines on every shortcut. Only one way works.',stars:[[-5,-3],[3,5],[-1,4],[3,-4],[-4,-5],[2,-2],[6,0]],mines:[[1,4.5],[-6,-1],[0,-1.6]],segs:[S(1,2),S(-2,2),S(.5,-3)]},
+];
+const SEGC=['--s1','--s2','--s3','--s4'];
+const nLines=lv=>lv.lines||1;
+
+/* ================= NUMBERS ================= */
+function frac(v){for(let d=2;d<=12;d++){const n=v*d;if(Math.abs(n-Math.round(n))<1e-7)return[Math.round(n),d]}return null}
+function nice(v){
+  if(Math.abs(v)<1e-9)v=0;
+  if(Math.abs(v-Math.round(v))<1e-9)return String(Math.round(v)).replace('-','−');
+  const f=frac(v);
+  if(f)return (f[0]<0?'−':'')+Math.abs(f[0])+'/'+f[1];
+  return String(Math.round(v*100)/100).replace('-','−');
+}
+const pt=(x,y)=>'('+nice(x)+', '+nice(y)+')';
+function eqStr(a,b){
+  let s='';
+  if(Math.abs(a)>1e-9)s=Math.abs(a-1)<1e-9?'x':Math.abs(a+1)<1e-9?'−x':nice(a)+'x';
+  if(!s)s=nice(b);else if(Math.abs(b)>1e-9)s+=(b<0?' − ':' + ')+nice(Math.abs(b));
+  return 'y = '+s;
+}
+const mmss=t=>{t=Math.max(0,Math.floor(t));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
+
+/* ================= PARSER ================= */
+function parse(raw){
+  let s=raw.toLowerCase().replace(/\s+/g,'').replace(/[−–—]/g,'-').replace(/[·×]/g,'*').replace(/÷|:/g,'/').replace(/,/g,'.');
+  s=s.replace(/^(y|f\(x\))=/,'');
+  if(!s)return{empty:true};
+  if(s.includes('='))return{err:'type only the right-hand side'};
+  const tk=[];let i=0;
+  while(i<s.length){
+    const c=s[i];
+    if(/[0-9.]/.test(c)){let j=i;while(j<s.length&&/[0-9.]/.test(s[j]))j++;const t=s.slice(i,j);
+      if(t==='.'||(t.match(/\./g)||[]).length>1)return{err:'odd number “'+t+'”'};
+      tk.push({t:'n',v:parseFloat(t)});i=j;continue}
+    if(c==='x'){tk.push({t:'x'});i++;continue}
+    if('+-*/()'.includes(c)){tk.push({t:c});i++;continue}
+    return{err:'unknown symbol “'+c+'”'};
+  }
+  let p=0;const pk=()=>tk[p];
+  function expr(){let l=term();while(pk()&&(pk().t==='+'||pk().t==='-')){const o=tk[p++].t,r=term(),a=l;l=o==='+'?x=>a(x)+r(x):x=>a(x)-r(x)}return l}
+  function term(){let l=unary();while(pk()&&['*','/','x','('].includes(pk().t)){let o=pk().t;if(o==='*'||o==='/')p++;else o='*';const r=unary(),a=l;l=o==='/'?x=>a(x)/r(x):x=>a(x)*r(x)}return l}
+  function unary(){const t=pk();if(!t)throw'end';if(t.t==='-'){p++;const u=unary();return x=>-u(x)}if(t.t==='+'){p++;return unary()}return prim()}
+  function prim(){const t=tk[p++];if(!t)throw'end';if(t.t==='n')return()=>t.v;if(t.t==='x')return x=>x;
+    if(t.t==='('){const e=expr();if(!pk()||pk().t!==')')throw'paren';p++;return e}throw'bad'}
+  let f;
+  try{f=expr();if(p<tk.length)throw tk[p].t===')'?'paren2':'bad'}
+  catch(e){return{err:e==='end'?'finish the expression':e==='paren'?'missing )':e==='paren2'?'too many )':'can’t read that'}}
+  const b=f(0),a=f(1)-b;
+  for(const t of[-3,2.5,7,-0.7]){const v=f(t);
+    if(!isFinite(v)||!isFinite(a)||!isFinite(b))return{err:'division by zero'};
+    if(Math.abs(v-(b+a*t))>1e-6*(1+Math.abs(v)))return{err:'not a straight line: stick to mx + c'}}
+  return{ok:true,a,b,f:x=>b+a*x};
+}
+
+/* ================= STATE ================= */
+const KEY='through-the-stars-v2';
+let prog={levels:{},unlockAll:false};
+try{const r=localStorage.getItem(KEY);if(r)prog=Object.assign(prog,JSON.parse(r))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(prog))}catch(e){}};
+
+const st={li:0,parsed:[],res:null,active:0,hintStep:0,hintsUsed:0,t0:0,tEnd:0,won:false,coords:false,pops:{},parts:[],tap:null,winTimer:null};
+const $=id=>document.getElementById(id);
+const cv=$('cv'),ctx=cv.getContext('2d');
+const coarse=matchMedia('(pointer:coarse)').matches;
+
+const unlocked=i=>prog.unlockAll||i===0||!!(prog.levels[i-1]&&prog.levels[i-1].done);
+const medalsOf=i=>(prog.levels[i]&&prog.levels[i].m)||[false,false,false];
+
+/* ================= MENU ================= */
+function starSvg(on,size=14){
+  const pts=[];for(let k=0;k<10;k++){const r=k%2?4.6:11,a=-Math.PI/2+k*Math.PI/5;pts.push((12+r*Math.cos(a)).toFixed(2)+','+(12.5+r*Math.sin(a)).toFixed(2))}
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true"><polygon points="${pts.join(' ')}" fill="${on?'var(--star)':'none'}" stroke="${on?'var(--star)':'var(--muted)'}" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+}
+function renderMenu(){
+  let tot=0;L.forEach((_,i)=>tot+=medalsOf(i).filter(Boolean).length);
+  $('total').innerHTML=starSvg(true,18)+` ${tot} / ${L.length*3} stars collected`;
+  const next=L.findIndex((_,i)=>!(prog.levels[i]&&prog.levels[i].done));
+  let html='';
+  CH.forEach((c,ci)=>{
+    html+=`<section class="chapter"><h2>${ci+1}. ${c.name} <small>${c.sub}</small></h2><div class="tiles">`;
+    L.forEach((lv,i)=>{if(lv.ch!==ci)return;
+      const m=medalsOf(i),ok=unlocked(i);
+      html+=`<button class="tile${i===next?' next':''}" data-l="${i}" type="button" ${ok?'':'disabled'} aria-label="Level ${i+1}: ${lv.name}${ok?'':' (locked)'}">
+        <span class="n">${i+1}</span><span class="nm">${ok?lv.name:'locked'}</span>
+        <span class="ms">${m.map(v=>starSvg(v)).join('')}</span></button>`});
+    html+='</div></section>';
+  });
+  $('chapters').innerHTML=html;
+  $('unlockAll').textContent=prog.unlockAll?'Lock levels in order again':'Unlock all levels';
+}
+$('chapters').addEventListener('click',e=>{const b=e.target.closest('.tile');if(b&&!b.disabled)startLevel(+b.dataset.l)});
+$('unlockAll').onclick=()=>{prog.unlockAll=!prog.unlockAll;save();renderMenu()};
+let resetArm=false;
+$('resetBtn').onclick=()=>{
+  if(!resetArm){resetArm=true;$('resetBtn').textContent='Sure? Tap again to reset';setTimeout(()=>{resetArm=false;$('resetBtn').textContent='Reset progress'},3000);return}
+  prog={levels:{},unlockAll:false};save();resetArm=false;$('resetBtn').textContent='Reset progress';renderMenu();
+};
+function showMenu(){clearTimeout(st.winTimer);$('win').hidden=true;$('play').hidden=true;$('menu').hidden=false;renderMenu();window.scrollTo(0,0)}
+
+/* ================= LEVEL ================= */
+function startLevel(i){
+  clearTimeout(st.winTimer);
+  const lv=L[i],n=nLines(lv);
+  Object.assign(st,{li:i,active:0,hintStep:0,hintsUsed:0,t0:performance.now(),tEnd:0,won:false,pops:{},parts:[],tap:null,res:null});
+  $('menu').hidden=true;$('win').hidden=true;$('play').hidden=false;
+  $('lvNum').textContent=`Level ${i+1} / ${L.length} · ${CH[lv.ch].name}`;
+  $('lvName').textContent=lv.name;
+  $('task').textContent=lv.tip;
+  $('hintBox').hidden=true;
+  const multi=n>1,sub=['₁','₂','₃','₄'];
+  $('fields').innerHTML=Array.from({length:n},(_,k)=>`
+    <div class="field" data-k="${k}" style="--c:var(${SEGC[k]})">
+      <div class="frow">${multi?`<span class="dot">${k+1}</span>`:''}<label for="eq${k}">y${multi?sub[k]:''} =</label>
+        <input id="eq${k}" data-k="${k}" autocomplete="off" autocapitalize="off" spellcheck="false" ${coarse?'inputmode="none"':''} placeholder="${k===0&&i===0?'x':'e.g. 2x + 1'}"></div>
+      <div class="fmeta"><span class="ab" id="ab${k}">&nbsp;</span><span id="cnt${k}"></span></div>
+    </div>`).join('');
+  buildKeypad(multi);
+  setActive(0,!coarse);
+  recompute();sizeCanvas();tick();
+  window.scrollTo(0,0);
+}
+function setActive(k,focus){
+  st.active=k;
+  document.querySelectorAll('.field').forEach(f=>f.classList.toggle('active',+f.dataset.k===k));
+  if(focus){const inp=$('eq'+k);inp&&inp.focus({preventScroll:true})}
+  requestDraw();
+}
+$('fields').addEventListener('input',e=>{if(e.target.matches('input'))recompute()});
+$('fields').addEventListener('focusin',e=>{if(e.target.matches('input'))setActive(+e.target.dataset.k,false)});
+$('fields').addEventListener('click',e=>{const f=e.target.closest('.field');if(f)setActive(+f.dataset.k,true)});
+$('fields').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();nextField()}});
+function nextField(){setActive((st.active+1)%nLines(L[st.li]),true)}
+
+/* ---------- keypad ---------- */
+const KEYS=['7','8','9','x','⌫','4','5','6','+','−','1','2','3','/','(','0','.',')','⇥','C'];
+function buildKeypad(multi){
+  $('keypad').innerHTML=KEYS.map(k=>{
+    const cls=k==='x'?'key x':['⌫','⇥','C'].includes(k)?'key fn':'key';
+    const lab=k==='⇥'?'next':k==='C'?'clear':k;
+    const aria=k==='⌫'?'delete':k==='⇥'?'next equation':k==='C'?'clear field':k;
+    return `<button type="button" class="${cls}" data-key="${k}" aria-label="${aria}" ${k==='⇥'&&!multi?'disabled':''}>${lab}</button>`}).join('');
+}
+$('keypad').addEventListener('pointerdown',e=>{if(e.target.closest('.key'))e.preventDefault()});
+$('keypad').addEventListener('click',e=>{
+  const b=e.target.closest('.key');if(!b||b.disabled)return;
+  const k=b.dataset.key,inp=$('eq'+st.active);if(!inp)return;
+  if(k==='⇥'){nextField();return}
+  if(k==='C'){inp.value=''}
+  else{
+    let s=inp.selectionStart??inp.value.length,en=inp.selectionEnd??inp.value.length;
+    if(document.activeElement!==inp){s=en=inp.value.length}
+    if(k==='⌫'){if(s===en&&s>0)s--;inp.setRangeText('',s,en,'end')}
+    else inp.setRangeText(k,s,en,'end');
+  }
+  if(!coarse)inp.focus({preventScroll:true});
+  recompute();
+});
+
+/* ---------- scoring ---------- */
+const onLine=(p,[x,y],tol)=>p.ok&&Math.abs(p.f(x)-y)<tol;
+function recompute(){
+  const lv=L[st.li],n=nLines(lv);
+  st.parsed=Array.from({length:n},(_,k)=>parse($('eq'+k).value));
+  const P=st.parsed;
+  const starsBy=lv.stars.map(s=>P.map(p=>onLine(p,s,0.08)));
+  const starsHit=starsBy.map(r=>r.some(Boolean));
+  const minesBy=(lv.mines||[]).map(m=>P.map(p=>onLine(p,m,0.15)));
+  const minesHit=minesBy.map(r=>r.some(Boolean));
+  const prev=st.res?st.res.starsHit:[],prevM=st.res?st.res.minesHit:[];
+  starsHit.forEach((h,i)=>{if(h&&!prev[i])st.pops['s'+i]=performance.now()});
+  minesHit.forEach((h,i)=>{if(h&&!prevM[i])st.pops['m'+i]=performance.now()});
+  const filled=P.filter(p=>p.ok).length,anyErr=P.some(p=>p.err);
+  const complete=!anyErr&&filled>0&&starsHit.every(Boolean)&&!minesHit.some(Boolean);
+  st.res={starsHit,minesHit,starsBy,minesBy,complete};
+
+  P.forEach((p,k)=>{
+    const el=$('ab'+k),cnt=$('cnt'+k);
+    const nS=starsBy.filter(r=>r[k]).length,nM=minesBy.filter(r=>r[k]).length;
+    if(p.empty){el.innerHTML='&nbsp;';cnt.innerHTML=''}
+    else if(p.err){el.innerHTML=`<span class="err">${p.err}</span>`;cnt.innerHTML=''}
+    else{
+      el.innerHTML=`m = ${nice(p.a)} · c = ${nice(p.b)}`;
+      cnt.innerHTML=nM?`<span class="err">✕ hits a mine</span>`:`<span class="${nS?'done':''}">★ ${nS}</span>`;
+    }
+  });
+  const hit=starsHit.filter(Boolean).length,all=hit===lv.stars.length;
+  let g=`<span class="chip ${all?'good':''}">${starSvg(all,12)} ${hit}/${lv.stars.length} stars</span>`;
+  if(lv.mines){const m=minesHit.filter(Boolean).length;g+=`<span class="chip ${m?'bad':''}">✕ ${m?(m>1?m+' mines hit!':'mine hit!'):'mines avoided'}</span>`}
+  if(n>1)g+=`<span class="chip">${n} equations</span>`;
+  $('goals').innerHTML=g;
+
+  clearTimeout(st.winTimer);
+  if(complete&&!st.won)st.winTimer=setTimeout(()=>{if(st.res.complete&&!st.won)win()},650);
+  requestDraw();
+}
+
+/* ---------- hints ---------- */
+$('hintBtn').onclick=()=>{
+  const lv=L[st.li],r=st.res,multi=nLines(lv)>1;
+  // pick the reference line that still has stars nobody has collected
+  let k=lv.segs.findIndex(sg=>lv.stars.some((s,i)=>!r.starsHit[i]&&Math.abs(sg.a*s[0]+sg.b-s[1])<.08));
+  if(k<0)k=0;
+  const sg=lv.segs[k];
+  if(st.hintK!==k){st.hintK=k;st.hintStep=0}
+  st.hintStep=Math.min(2,st.hintStep+1);st.hintsUsed++;
+  let t;
+  if(multi){
+    const on=lv.stars.filter(s=>Math.abs(sg.a*s[0]+sg.b-s[1])<.08);
+    t=st.hintStep===1?`One line that works goes through ${on.slice(0,2).map(s=>pt(...s)).join(' and ')}.`
+      :`That line is ${eqStr(sg.a,sg.b)}.`;
+  }else if(st.hintStep===1){
+    t=Math.abs(sg.a)<1e-9?'m = 0, so the line is flat.'
+      :`m = ${nice(sg.a)}: when x goes up by 1, y goes ${sg.a>0?'up':'down'} by ${nice(Math.abs(sg.a))}.`;
+  }else{
+    t=`c = ${nice(sg.b)}: the line crosses the y-axis at ${pt(0,sg.b)}. Together: ${eqStr(sg.a,sg.b)}`;
+  }
+  $('hintBox').textContent=t;$('hintBox').hidden=false;
+};
+
+/* ---------- timer ---------- */
+function tick(){
+  if($('play').hidden)return;
+  const lv=L[st.li],lim=CH[lv.ch].limit;
+  const t=((st.won?st.tEnd:performance.now())-st.t0)/1000;
+  $('timer').innerHTML=`<b>${mmss(t)}</b><small>target ${mmss(lim)}</small>`;
+  $('timer').classList.toggle('over',t>lim);
+  if(!st.won)setTimeout(tick,250);
+}
+
+/* ---------- win ---------- */
+function win(){
+  st.won=true;st.tEnd=performance.now();tick();
+  const lv=L[st.li],t=(st.tEnd-st.t0)/1000,lim=CH[lv.ch].limit;
+  const m=[true,st.hintsUsed===0,t<=lim];
+  const old=medalsOf(st.li);
+  prog.levels[st.li]={done:true,m:m.map((v,i)=>v||old[i])};save();
+  lv.stars.forEach(([x,y])=>{const px=view.X(x),py=view.Y(y);
+    for(let j=0;j<7;j++){const a=Math.random()*Math.PI*2,v=1.5+Math.random()*3;st.parts.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2,life:1,r:3+Math.random()*3})}});
+  requestDraw();
+  $('winEqs').innerHTML=st.parsed.map((p,k)=>p.ok?`<span style="color:var(${SEGC[k]})">${eqStr(p.a,p.b)}</span>`:'').join('');
+  const labels=['Every star collected',st.hintsUsed?`No hints (you used ${st.hintsUsed})`:'No hints',`Under ${mmss(lim)} (your time: ${mmss(t)})`];
+  $('winMedals').innerHTML=m.map((v,i)=>`<li class="${v?'':'no'}">${starSvg(v,20)} ${labels[i]}</li>`).join('');
+  const last=st.li===L.length-1;
+  $('winTitle').textContent=last?'All levels done!':['Cleared!','Nice one!','Spot on!'][st.li%3];
+  $('nextBtn').hidden=last;
+  setTimeout(()=>{if(st.won&&!$('play').hidden){$('win').hidden=false;($('nextBtn').hidden?$('menuBtn'):$('nextBtn')).focus()}},900);
+}
+$('againBtn').onclick=()=>startLevel(st.li);
+$('menuBtn').onclick=showMenu;
+$('backBtn').onclick=showMenu;
+$('nextBtn').onclick=()=>startLevel(Math.min(L.length-1,st.li+1));
+
+/* ================= DRAWING ================= */
+let dpr=1,view={};
+function sizeCanvas(){
+  dpr=window.devicePixelRatio||1;
+  const r=cv.getBoundingClientRect();
+  cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);
+  requestDraw();
+}
+new ResizeObserver(()=>{if(!$('play').hidden)sizeCanvas()}).observe($('board'));
+let raf=0;
+function requestDraw(){if(!raf)raf=requestAnimationFrame(()=>{raf=0;draw()})}
+function tok(){const cs=getComputedStyle(document.documentElement),g=n=>cs.getPropertyValue('--'+n).trim();
+  return{paper:g('paper'),grid:g('grid'),axis:g('axis'),ink:g('ink'),muted:g('muted'),star:g('star'),glow:g('star-glow'),mine:g('mine'),seg:SEGC.map(s=>g(s.slice(2))),mono:g('f-mono'),disp:g('f-display')}}
+function starPath(x,y,r){ctx.beginPath();for(let k=0;k<10;k++){const rr=k%2?r*.44:r,a=-Math.PI/2+k*Math.PI/5;k?ctx.lineTo(x+rr*Math.cos(a),y+rr*Math.sin(a)):ctx.moveTo(x+rr*Math.cos(a),y+rr*Math.sin(a))}ctx.closePath()}
+function draw(){
+  if($('play').hidden||!st.res)return;
+  const W=cv.clientWidth,H=cv.clientHeight;if(!W||!H)return;
+  const T=tok(),lv=L[st.li],now=performance.now();
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const pad=12,s=Math.min((W-2*pad)/14,(H-2*pad)/14);
+  const X=x=>W/2+x*s,Y=y=>H/2-y*s;
+  const xmin=-W/2/s,xmax=W/2/s,ymin=-H/2/s,ymax=H/2/s;
+  view={X,Y,s,W,H};
+  ctx.fillStyle=T.paper;ctx.fillRect(0,0,W,H);
+
+  // grid
+  ctx.lineWidth=1;ctx.strokeStyle=T.grid;ctx.beginPath();
+  for(let i=Math.ceil(xmin);i<=xmax;i++){const px=Math.round(X(i))+.5;ctx.moveTo(px,0);ctx.lineTo(px,H)}
+  for(let j=Math.ceil(ymin);j<=ymax;j++){const py=Math.round(Y(j))+.5;ctx.moveTo(0,py);ctx.lineTo(W,py)}
+  ctx.stroke();
+  // axes
+  ctx.strokeStyle=T.axis;ctx.fillStyle=T.axis;ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.moveTo(0,Y(0));ctx.lineTo(W-2,Y(0));ctx.moveTo(X(0),H);ctx.lineTo(X(0),2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(W-2,Y(0));ctx.lineTo(W-10,Y(0)-4.5);ctx.lineTo(W-10,Y(0)+4.5);ctx.fill();
+  ctx.beginPath();ctx.moveTo(X(0),2);ctx.lineTo(X(0)-4.5,10);ctx.lineTo(X(0)+4.5,10);ctx.fill();
+  ctx.font=`700 16px ${T.disp}`;ctx.textAlign='right';ctx.textBaseline='top';ctx.fillText('x',W-6,Y(0)+6);
+  ctx.textAlign='left';ctx.fillText('y',X(0)+8,2);
+  // ticks
+  const step=s>=26?1:2;ctx.font=`500 10px ${T.mono}`;ctx.fillStyle=T.muted;
+  ctx.textAlign='center';ctx.textBaseline='top';
+  for(let i=Math.ceil(xmin);i<=xmax-0.5;i++)if(i&&i%step===0)ctx.fillText(nice(i),X(i),Y(0)+4);
+  ctx.textAlign='right';ctx.textBaseline='middle';
+  for(let j=Math.ceil(ymin);j<=ymax-0.5;j++)if(j&&j%step===0)ctx.fillText(nice(j),X(0)-5,Y(j));
+  ctx.textAlign='right';ctx.textBaseline='top';ctx.fillText('0',X(0)-4,Y(0)+4);
+
+  // lines
+  const multi=st.parsed.length>1;
+  st.parsed.forEach((p,k)=>{
+    if(!p.ok)return;
+    ctx.strokeStyle=T.seg[k];ctx.lineWidth=multi&&k===st.active?4:3.2;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(X(xmin),Y(p.f(xmin)));ctx.lineTo(X(xmax),Y(p.f(xmax)));ctx.stroke();
+  });
+
+  let anim=false;
+  const R=Math.max(8,Math.min(14,s*.4));
+  const popK=key=>{const t0=st.pops[key];if(!t0)return 1;const d=(now-t0)/450;if(d>=1)return 1;anim=true;return 1+.55*Math.sin(d*Math.PI)};
+  // mines
+  (lv.mines||[]).forEach(([x,y],i)=>{
+    const h=st.res.minesHit[i],k=h?popK('m'+i):1,r=R*.8*k;
+    ctx.fillStyle=h?T.mine:T.paper;ctx.strokeStyle=T.mine;ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(X(x),Y(y),r,0,7);ctx.fill();ctx.stroke();
+    ctx.strokeStyle=h?T.paper:T.mine;const d=r*.45;
+    ctx.beginPath();ctx.moveTo(X(x)-d,Y(y)-d);ctx.lineTo(X(x)+d,Y(y)+d);ctx.moveTo(X(x)+d,Y(y)-d);ctx.lineTo(X(x)-d,Y(y)+d);ctx.stroke();
+  });
+  // stars
+  lv.stars.forEach(([x,y],i)=>{
+    const h=st.res.starsHit[i],k=h?popK('s'+i):1;
+    if(h){ctx.shadowColor=T.glow;ctx.shadowBlur=14}
+    starPath(X(x),Y(y),R*k);
+    ctx.fillStyle=h?T.star:T.paper;ctx.fill();
+    ctx.shadowBlur=0;ctx.strokeStyle=T.star;ctx.lineWidth=2;ctx.lineJoin='round';ctx.stroke();
+    if(!h){ctx.fillStyle=T.star;ctx.beginPath();ctx.arc(X(x),Y(y),1.8,0,7);ctx.fill()}
+  });
+  // coordinate labels
+  if(st.coords){
+    ctx.font=`500 10px ${T.mono}`;ctx.textAlign='left';ctx.textBaseline='bottom';
+    [...lv.stars,...(lv.mines||[])].forEach(([x,y])=>{
+      const tx=pt(x,y),w=ctx.measureText(tx).width;let lx=X(x)+R*.7,ly=Y(y)-R*.6;
+      if(lx+w+6>W)lx=X(x)-R*.7-w-4;
+      ctx.fillStyle=T.paper;ctx.globalAlpha=.85;ctx.fillRect(lx-2,ly-12,w+4,13);ctx.globalAlpha=1;
+      ctx.fillStyle=T.ink;ctx.fillText(tx,lx,ly);
+    });
+  }
+  if(st.tap){ctx.strokeStyle=T.ink;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(X(st.tap[0]),Y(st.tap[1]),R+4,0,7);ctx.stroke()}
+  if(st.parts.length){
+    st.parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.12;p.life-=.018;
+      ctx.globalAlpha=Math.max(0,p.life);starPath(p.x,p.y,p.r);ctx.fillStyle=T.star;ctx.fill()});
+    ctx.globalAlpha=1;st.parts=st.parts.filter(p=>p.life>0);anim=true;
+  }
+  if(anim)requestDraw();
+}
+
+/* ---------- tap on board ---------- */
+let tapTimer;
+cv.addEventListener('pointerdown',e=>{
+  if(!view.s)return;
+  const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
+  const lv=L[st.li];let best=null,bd=26;
+  [...lv.stars,...(lv.mines||[])].forEach(([x,y])=>{const d=Math.hypot(view.X(x)-px,view.Y(y)-py);if(d<bd){bd=d;best=[x,y]}});
+  if(!best)best=[Math.round((px-view.W/2)/view.s),Math.round((view.H/2-py)/view.s)];
+  st.tap=best;
+  const tp=$('tap');tp.textContent=pt(best[0],best[1]);
+  tp.style.left=Math.min(Math.max(view.X(best[0]),40),view.W-40)+'px';tp.style.top=Math.max(view.Y(best[1]),34)+'px';tp.hidden=false;
+  clearTimeout(tapTimer);tapTimer=setTimeout(()=>{tp.hidden=true;st.tap=null;requestDraw()},1800);
+  requestDraw();
+});
+$('coordBtn').onclick=()=>{st.coords=!st.coords;$('coordBtn').setAttribute('aria-pressed',st.coords);requestDraw()};
+
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',requestDraw);
+new MutationObserver(requestDraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+document.fonts&&document.fonts.ready.then(requestDraw);
+
+renderMenu();
+})();
+</script>
+</body>
+</html>
