@@ -200,6 +200,10 @@ canvas{display:block;width:100%;height:100%}
   </div>
 </div>
 
+<div id="jsErr" hidden style="margin:12px 0;padding:10px 12px;border:1.5px solid var(--mine);border-radius:10px;color:var(--mine);font-family:var(--f-mono);font-size:.8rem;word-break:break-word"></div>
+<script>
+window.addEventListener('error',function(e){var b=document.getElementById('jsErr');if(!b)return;b.hidden=false;b.textContent='Something broke: '+(e.message||'unknown error')+(e.lineno?' (line '+e.lineno+')':'')+'. Send this to your teacher.';});
+</script>
 <script>
 (()=>{
 /* ================= DATA ================= */
@@ -304,7 +308,7 @@ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(prog))}catch(e){}};
 const st={li:0,parsed:[],res:null,active:0,hintStep:0,hintsUsed:0,t0:0,tEnd:0,won:false,coords:false,pops:{},parts:[],tap:null,winTimer:null};
 const $=id=>document.getElementById(id);
 const cv=$('cv'),ctx=cv.getContext('2d');
-const coarse=matchMedia('(pointer:coarse)').matches;
+let coarse=false;try{coarse=matchMedia('(pointer:coarse)').matches||('ontouchstart' in window)}catch(e){}
 
 const unlocked=i=>prog.unlockAll||i===0||!!(prog.levels[i-1]&&prog.levels[i-1].done);
 const medalsOf=i=>(prog.levels[i]&&prog.levels[i].m)||[false,false,false];
@@ -390,7 +394,7 @@ $('keypad').addEventListener('click',e=>{
   if(k==='⇥'){nextField();return}
   if(k==='C'){inp.value=''}
   else{
-    let s=inp.selectionStart??inp.value.length,en=inp.selectionEnd??inp.value.length;
+    let s=inp.selectionStart!=null?inp.selectionStart:inp.value.length,en=inp.selectionEnd!=null?inp.selectionEnd:inp.value.length;
     if(document.activeElement!==inp){s=en=inp.value.length}
     if(k==='⌫'){if(s===en&&s>0)s--;inp.setRangeText('',s,en,'end')}
     else inp.setRangeText(k,s,en,'end');
@@ -501,7 +505,8 @@ function sizeCanvas(){
   cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);
   requestDraw();
 }
-new ResizeObserver(()=>{if(!$('play').hidden)sizeCanvas()}).observe($('board'));
+if(window.ResizeObserver)new ResizeObserver(()=>{if(!$('play').hidden)sizeCanvas()}).observe($('board'));
+window.addEventListener('resize',()=>{if(!$('play').hidden)sizeCanvas()});
 let raf=0;
 function requestDraw(){if(!raf)raf=requestAnimationFrame(()=>{raf=0;draw()})}
 function tok(){const cs=getComputedStyle(document.documentElement),g=n=>cs.getPropertyValue('--'+n).trim();
@@ -601,9 +606,9 @@ cv.addEventListener('pointerdown',e=>{
 });
 $('coordBtn').onclick=()=>{st.coords=!st.coords;$('coordBtn').setAttribute('aria-pressed',st.coords);requestDraw()};
 
-matchMedia('(prefers-color-scheme: dark)').addEventListener('change',requestDraw);
-new MutationObserver(requestDraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-document.fonts&&document.fonts.ready.then(requestDraw);
+try{const mq=matchMedia('(prefers-color-scheme: dark)');mq.addEventListener?mq.addEventListener('change',requestDraw):mq.addListener(requestDraw)}catch(e){}
+try{new MutationObserver(requestDraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']})}catch(e){}
+try{document.fonts&&document.fonts.ready.then(requestDraw)}catch(e){}
 
 renderMenu();
 })();
